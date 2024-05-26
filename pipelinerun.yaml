@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: build-and-push-pipelinerun-r-
+  namespace: default
+spec:
+  params:
+    - name: IMAGE
+      value: docker.io/geethgulabrathod/budjet_app:latest
+  pipelineRef:
+    name: build-and-push-pipeline
+  taskRunTemplate:
+    serviceAccountName: default
+  timeouts:
+    pipeline: 1h0m0s
+  workspaces:
+    - name: shared-workspace
+      persistentVolumeClaim:
+        claimName: my-pvc
