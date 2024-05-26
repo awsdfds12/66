@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-and-push-pipeline
+  namespace: default
+spec:
+  params:
+    - name: IMAGE
+      description: The name of the image to build and push
+      default: docker.io/geethgulabrathod/budjet_app:latest
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: build-and-push
+      taskRef:
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE)
+        - name: TLSVERIFY
+          value: "false"
+        - name: DOCKERFILE
+          value: ./Dockerfile
+        - name: CONTEXT
+          value: .
