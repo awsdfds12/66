@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: buildah
+  namespace: default
+spec:
+  params:
+    - name: IMAGE
+      type: string
+      description: The name of the image to build and push
+    - name: TLSVERIFY
+      type: string
+      default: "false"
+    - name: DOCKERFILE
+      type: string
+      default: ./Dockerfile
+    - name: CONTEXT
+      type: string
+      default: .
+  workspaces:
+    - name: source
+      description: The workspace containing the source code to build
+  steps:
+    - name: build
+      image: quay.io/buildah/stable
+      script: |
+        #!/usr/bin/env bash
+        buildah bud --layers -f $(params.DOCKERFILE) -t $(params.IMAGE) $(workspaces.source.path)/$(params.CONTEXT)
+    - name: push
+      image: quay.io/buildah/stable
+      script: |
+        #!/usr/bin/env bash
+        buildah push --tls-verify=$(params.TLSVERIFY) $(params.IMAGE)
